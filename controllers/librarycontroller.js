@@ -6,16 +6,10 @@ const router = express.Router();
 router.use(bodyParser.urlencoded({ extended: true, limit: '1mb' }));
 
 router.post('/', (req, res) => {
-  Library.create({
-    cover : req.body.cover,
-    title : req.body.title,
-    author : req.body.author,
-    numberOfPages : req.body.numberOfPages,
-    publishDate : new Date(req.body.publishDate)
-  },
-    (err, book) => {
+  Library.collection.insert(JSON.parse(req.body.books),
+    (err, books) => {
       if (err) return res.status(500).send('There was a problem adding the information to the database.');
-      res.status(200).send(book);
+      res.status(200).send(books);
     });
 });
 
@@ -24,6 +18,12 @@ router.get('/', (req, res) => {
     if (err) return res.status(500).send('There was a problem finding books in library.');
     res.status(200).send(book);
   });
+
+  // Library.find({}).skip(req.body.page*req.body.limit).limit(req.body.limit) //.sort()
+  // .exec((err, book) => {
+  //     if (err) return res.status(500).send('There was a problem finding books in library.');
+  //     res.status(200).send(book);
+  //   });
 });
 
 router.get('/:id', (req, res) => {

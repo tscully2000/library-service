@@ -5,7 +5,7 @@ const LibrarySchema = new mongoose.Schema({
   title: String,
   author: String,
   numberOfPages: Number,
-  publishDate: Date,
+  publishDate: String
 });
 
 mongoose.model('Library', LibrarySchema);
