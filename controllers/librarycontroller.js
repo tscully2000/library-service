@@ -18,7 +18,6 @@ router.get('/', (req, res) => {
     if (err) return res.status(500).send('There was a problem finding books in library.');
     res.status(200).send(book);
   });
-
   // Library.find({}).skip(req.body.page*req.body.limit).limit(req.body.limit) //.sort()
   // .exec((err, book) => {
   //     if (err) return res.status(500).send('There was a problem finding books in library.');
@@ -26,10 +25,23 @@ router.get('/', (req, res) => {
   //   });
 });
 
+router.get('/search/:search', (req, res) => {
+  let text = req.params.search, pattern = new RegExp(text), patternMatch = { $regex: pattern, $options: 'igx' };
+  let results = [{ title: patternMatch }, { author: patternMatch }];
+  // if (typeof parseInt(text) === 'number') {
+  //   results = [{ numberOfPages: text }];
+  // }
+  Library.find({ $or: results }, (err, book) => {
+    console.log(err);
+    if (err) return res.status(500).send('No results matching that search were found.');
+    res.status(200).send(book);
+  });
+});
+
 router.get('/:id', (req, res) => {
   Library.findById(req.params.id, (err, book) => {
     if (err) return res.status(500).send('There was a problem finding that book.');
-    res.status(200).send(book);
+    res.status(200).send(`${book._id} was retrieved`);
   });
 });
 
