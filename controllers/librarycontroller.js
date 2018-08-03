@@ -6,11 +6,10 @@ const router = express.Router();
 router.use(bodyParser.urlencoded({ extended: true, limit: '1mb' }));
 
 router.post('/', (req, res) => {
-  Library.collection.insert(JSON.parse(req.body.books),
-    (err, books) => {
-      if (err) return res.status(500).send('There was a problem adding the information to the database.');
-      res.status(200).send(books);
-    });
+  Library.collection.insert(req.body.books, (err, books) => {
+    if (err) return res.status(500).send('There was a problem adding the information to the database.');
+    res.status(200).send(books);
+  });
 });
 
 router.get('/', (req, res) => {
@@ -18,19 +17,18 @@ router.get('/', (req, res) => {
     if (err) return res.status(500).send('There was a problem finding books in library.');
     res.status(200).send(book);
   });
-  // Library.find({}).skip(req.body.page*req.body.limit).limit(req.body.limit) //.sort()
-  // .exec((err, book) => {
-  //     if (err) return res.status(500).send('There was a problem finding books in library.');
-  //     res.status(200).send(book);
-  //   });
+});
+
+router.get('/page/:page', (req, res) => {
+  Library.find({}).limit(5).exec((err, book) => {
+    if (err) return res.status(500).send('There was a problem finding books in library.');
+    res.status(200).send(book);
+  });
 });
 
 router.get('/search/:search', (req, res) => {
   let text = req.params.search, pattern = new RegExp(text), patternMatch = { $regex: pattern, $options: 'igx' };
   let results = [{ title: patternMatch }, { author: patternMatch }];
-  // if (typeof parseInt(text) === 'number') {
-  //   results = [{ numberOfPages: text }];
-  // }
   Library.find({ $or: results }, (err, book) => {
     console.log(err);
     if (err) return res.status(500).send('No results matching that search were found.');
