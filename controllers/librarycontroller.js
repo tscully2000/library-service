@@ -19,8 +19,16 @@ router.get('/', (req, res) => {
   });
 });
 
-router.get('/page/:page', (req, res) => {
-  Library.find({}).limit(5).exec((err, book) => {
+router.get('/page/:page/:id/:upDown', (req, res) => {
+  let lastId = req.params.id, results;
+  if (req.params.upDown === '>') {
+    results = {_id: { $gt: lastId } };
+  } else if (req.params.upDown === '<') {
+    results = {_id: { $lt: lastId} };
+  } else {
+    results = {_id: { $gte: lastId } };
+  }
+  Library.find(results).limit(5).exec((err, book) => {
     if (err) return res.status(500).send('There was a problem finding books in library.');
     res.status(200).send(book);
   });
@@ -29,7 +37,7 @@ router.get('/page/:page', (req, res) => {
 router.get('/search/:search', (req, res) => {
   let text = req.params.search, pattern = new RegExp(text), patternMatch = { $regex: pattern, $options: 'igx' };
   let results = [{ title: patternMatch }, { author: patternMatch }];
-  Library.find({ $or: results }, (err, book) => {
+  Library.find({$or: results }, (err, book) => {
     console.log(err);
     if (err) return res.status(500).send('No results matching that search were found.');
     res.status(200).send(book);
